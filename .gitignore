@@ -33,7 +33,6 @@ htmlcov/
 # Editores / IDEs
 .vscode/
 .idea/
-.claude/
 
 # Sistema operativo
 .DS_Store
