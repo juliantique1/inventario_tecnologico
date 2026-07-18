@@ -20,8 +20,16 @@ inventario_tecnologico/
 │   │   └── informe_service.py                  # Generación de informes
 │   └── ui/
 │       └── console_ui.py                        # Interfaz de consola
+├── tests/
+│   ├── fakes.py                                  # Repositorio en memoria para pruebas unitarias
+│   ├── test_validator.py                         # Pruebas unitarias de validación
+│   ├── test_inventario_service.py                # Pruebas unitarias de casos de uso CRUD
+│   ├── test_informe_service.py                   # Pruebas unitarias de informes
+│   └── test_repository_integration.py            # Pruebas de integración (SQLite en memoria)
 ├── main.py                                       # Punto de entrada (composition root)
 ├── requirements.txt                              # Dependencias del proyecto
+├── requirements-dev.txt                          # Dependencias adicionales para pruebas
+├── pytest.ini                                     # Configuración de pytest
 ├── .env.example                                   # Plantilla de variables de entorno
 └── README.md
 ```
@@ -125,3 +133,19 @@ Tabla `dispositivos`:
 
 - Las validaciones lanzan `ValidationError` (`src/validation/dispositivo_validator.py`), capturada en `ConsoleUI` para mostrar mensajes claros sin detener la aplicación.
 - Los errores de integridad de MySQL (por ejemplo, número de serie duplicado) se capturan con `IntegrityError` de SQLAlchemy en `DispositivoRepository` y se traducen a `ValidationError`.
+
+## Pruebas
+
+El proyecto incluye pruebas automatizadas con `pytest`, organizadas en dos niveles:
+
+- **Pruebas unitarias** (`tests/test_validator.py`, `tests/test_inventario_service.py`, `tests/test_informe_service.py`): verifican reglas de negocio y casos de uso de forma aislada, sin tocar una base de datos real. Esto es posible gracias a que `InventarioService`/`InformeService` dependen de la interfaz `IDispositivoRepository`/`IDispositivoLector` (inversión de dependencias), lo que permite sustituir la implementación real por un repositorio en memoria (`tests/fakes.py`) solo para pruebas.
+- **Pruebas de integración** (`tests/test_repository_integration.py`): verifican que `DispositivoRepository` y el mapeo de SQLAlchemy funcionan correctamente contra una base de datos real (SQLite en memoria), incluyendo la restricción de número de serie único.
+
+Cada regla de `DispositivoValidator` corresponde a un requisito documentado en la sección "Funcionalidades", por lo que las pruebas unitarias del validador actúan como verificación temprana de esos requisitos. En conjunto, las pruebas cubren los atributos de **corrección funcional** y **fiabilidad** descritos en ISO/IEC 25010.
+
+### Ejecutar las pruebas
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
