@@ -186,14 +186,20 @@ class ConsoleUI:
         if not id_texto.isdigit():
             print("Id inválido.")
             return
-        confirmacion = input("¿Confirmas la eliminación? (s/n): ").strip().lower()
+
+        dispositivo = self._inventario.obtener_dispositivo(int(id_texto))
+        if dispositivo is None:
+            print("No existe un dispositivo con ese id.")
+            return
+
+        self._imprimir_dispositivo(dispositivo)
+        confirmacion = input("¿Confirmas la eliminación de este dispositivo? (s/n): ").strip().lower()
         if confirmacion != "s":
             print("Operación cancelada.")
             return
-        if self._inventario.eliminar_dispositivo(int(id_texto)):
-            print("Dispositivo eliminado.")
-        else:
-            print("No existe un dispositivo con ese id.")
+
+        self._inventario.eliminar_dispositivo(dispositivo.id)
+        print("Dispositivo eliminado.")
 
     def _mostrar_informe(self) -> None:
         print("\n--- Informe del inventario ---")
